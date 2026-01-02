@@ -33,7 +33,7 @@ def serve(
     bind: str = typer.Option("0.0.0.0:50051", envvar="SID_QUERY_BIND"),
     db_path: Path = typer.Option("model-bin/sid_query/sid_query.sqlite", envvar="SID_QUERY_DB_PATH"),
     index_path: Path = typer.Option("model-bin/sid_query/sid_query.faiss", envvar="SID_QUERY_INDEX_PATH"),
-    sid_target: str = typer.Option("localhost:50017", envvar="SID_QUERY_SID_TARGET"),
+    sid_target: str = typer.Option("localhost:51007", envvar="SID_QUERY_SID_TARGET"),
     vad_alg: str = typer.Option("", envvar="SID_QUERY_VAD_ALG"),
     sid_alg: str = typer.Option("", envvar="SID_QUERY_SID_ALG"),
     max_workers: int = typer.Option(10, envvar="SID_QUERY_MAX_WORKERS"),
