@@ -29,6 +29,16 @@ service SpeakerRegistryService {
       returns (GetEntityResponse);
 }
 
+////////////////////////////////////////////////////////////
+// 查询服务（在线推理）
+////////////////////////////////////////////////////////////
+service SpeakerQueryService {
+
+  // 输入一段音频，返回可能的说话人 / 设备 / 实体
+  rpc QuerySpeaker(QuerySpeakerRequest)
+      returns (QuerySpeakerResponse);
+}
+
 
 ////////////////////////////////////////////////////////////
 // 对外实体信息（业务真正关心的对象）
@@ -77,16 +87,6 @@ message QueryConfig {
   bool return_score = 3;
 }
 
-////////////////////////////////////////////////////////////
-// 查询服务（在线推理）
-////////////////////////////////////////////////////////////
-
-service SpeakerQueryService {
-
-  // 输入一段音频，返回可能的说话人 / 设备 / 实体
-  rpc QuerySpeaker(QuerySpeakerRequest)
-      returns (QuerySpeakerResponse);
-}
 
 message QuerySpeakerRequest {
   // 原始音频数据
