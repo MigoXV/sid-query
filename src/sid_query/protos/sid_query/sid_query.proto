@@ -7,16 +7,32 @@ option java_package = "com.speaker.query.v1";
 option java_multiple_files = true;
 
 ////////////////////////////////////////////////////////////
-// 对外实体信息（应用真正关心的东西）
+// 实体管理服务（增 / 改 / 删 / 查）
 ////////////////////////////////////////////////////////////
 
-service SpeakerQueryService {
+service SpeakerRegistryService {
 
-  // 输入一段音频，返回可能的说话人/设备/实体
-  rpc QuerySpeaker(QuerySpeakerRequest)
-      returns (QuerySpeakerResponse);
+  // 注册新实体（通过音频）
+  rpc RegisterEntity(RegisterEntityRequest)
+      returns (RegisterEntityResponse);
+
+  // 更新已有实体（追加或覆盖特征）
+  rpc UpdateEntity(UpdateEntityRequest)
+      returns (UpdateEntityResponse);
+
+  // 删除实体
+  rpc DeleteEntity(DeleteEntityRequest)
+      returns (DeleteEntityResponse);
+
+  // 获取实体基础信息（不做相似度检索）
+  rpc GetEntity(GetEntityRequest)
+      returns (GetEntityResponse);
 }
 
+
+////////////////////////////////////////////////////////////
+// 对外实体信息（业务真正关心的对象）
+////////////////////////////////////////////////////////////
 
 message EntityInfo {
   // 实体唯一标识
@@ -54,7 +70,7 @@ message QueryConfig {
   uint32 top_k = 1;
 
   // 相似度阈值，低于该值的不返回
-  // 可选，0 表示不启用
+  // 0 表示不启用
   float score_threshold = 2;
 
   // 是否在返回中包含匹配分数
@@ -62,8 +78,15 @@ message QueryConfig {
 }
 
 ////////////////////////////////////////////////////////////
-// 查询请求：输入音频 → 查询说话人/设备等实体
+// 查询服务（在线推理）
 ////////////////////////////////////////////////////////////
+
+service SpeakerQueryService {
+
+  // 输入一段音频，返回可能的说话人 / 设备 / 实体
+  rpc QuerySpeaker(QuerySpeakerRequest)
+      returns (QuerySpeakerResponse);
+}
 
 message QuerySpeakerRequest {
   // 原始音频数据
@@ -75,10 +98,6 @@ message QuerySpeakerRequest {
   // 查询行为配置
   QueryConfig query_config = 3;
 }
-
-////////////////////////////////////////////////////////////
-// 查询结果
-////////////////////////////////////////////////////////////
 
 message MatchEntity {
   // 命中的实体信息
@@ -93,7 +112,74 @@ message QuerySpeakerResponse {
   repeated MatchEntity matches = 1;
 }
 
+
 ////////////////////////////////////////////////////////////
-// 对外服务：只有“查”这一件事
+// 注册实体
 ////////////////////////////////////////////////////////////
 
+message RegisterEntityRequest {
+  // 实体信息（entity_id 可由调用方指定，或由服务端生成）
+  EntityInfo entity = 1;
+
+  // 注册用音频数据
+  bytes audio = 2;
+
+  // 音频格式
+  AudioFormat audio_format = 3;
+}
+
+message RegisterEntityResponse {
+  // 最终使用的实体 ID
+  string entity_id = 1;
+}
+
+////////////////////////////////////////////////////////////
+// 更新实体
+////////////////////////////////////////////////////////////
+
+message UpdateEntityRequest {
+  // 要更新的实体 ID
+  string entity_id = 1;
+
+  // 新增或替换用的音频数据
+  bytes audio = 2;
+
+  // 音频格式
+  AudioFormat audio_format = 3;
+
+  // 是否覆盖已有特征
+  // false：追加特征
+  // true ：重建该实体的特征
+  bool overwrite = 4;
+
+  // 可选：更新 metadata
+  map<string, string> metadata = 5;
+}
+
+message UpdateEntityResponse {
+  string entity_id = 1;
+}
+
+////////////////////////////////////////////////////////////
+// 删除实体
+////////////////////////////////////////////////////////////
+
+message DeleteEntityRequest {
+  string entity_id = 1;
+}
+
+message DeleteEntityResponse {
+  bool success = 1;
+}
+
+////////////////////////////////////////////////////////////
+// 获取实体信息
+////////////////////////////////////////////////////////////
+
+message GetEntityRequest {
+  string entity_id = 1;
+}
+
+message GetEntityResponse {
+  EntityInfo entity = 1;
+}
