@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package speaker.query.v1;
+
+option go_package = "speaker/query/v1;speakerquery";
+option java_package = "com.speaker.query.v1";
+option java_multiple_files = true;
+
+////////////////////////////////////////////////////////////
+// 对外实体信息（应用真正关心的东西）
+////////////////////////////////////////////////////////////
+
+service SpeakerQueryService {
+
+  // 输入一段音频，返回可能的说话人/设备/实体
+  rpc QuerySpeaker(QuerySpeakerRequest)
+      returns (QuerySpeakerResponse);
+}
+
+
+message EntityInfo {
+  // 实体唯一标识
+  string entity_id = 1;
+
+  // 实体类型，如 person / device / account
+  string entity_type = 2;
+
+  // 业务自定义信息
+  map<string, string> metadata = 3;
+}
+
+////////////////////////////////////////////////////////////
+// 音频输入描述
+////////////////////////////////////////////////////////////
+
+message AudioFormat {
+  // 采样率，如 16000
+  uint32 sample_rate = 1;
+
+  // 声道数，如 1
+  uint32 channels = 2;
+
+  // 编码格式，如 pcm16 / wav / flac
+  string encoding = 3;
+}
+
+////////////////////////////////////////////////////////////
+// 查询配置（控制返回行为）
+////////////////////////////////////////////////////////////
+
+message QueryConfig {
+  // 最多返回多少个候选实体
+  // top_k = 1 表示“直接告诉我是谁”
+  uint32 top_k = 1;
+
+  // 相似度阈值，低于该值的不返回
+  // 可选，0 表示不启用
+  float score_threshold = 2;
+
+  // 是否在返回中包含匹配分数
+  bool return_score = 3;
+}
+
+////////////////////////////////////////////////////////////
+// 查询请求：输入音频 → 查询说话人/设备等实体
+////////////////////////////////////////////////////////////
+
+message QuerySpeakerRequest {
+  // 原始音频数据
+  bytes audio = 1;
+
+  // 音频格式
+  AudioFormat audio_format = 2;
+
+  // 查询行为配置
+  QueryConfig query_config = 3;
+}
+
+////////////////////////////////////////////////////////////
+// 查询结果
+////////////////////////////////////////////////////////////
+
+message MatchEntity {
+  // 命中的实体信息
+  EntityInfo entity = 1;
+
+  // 匹配分数（仅在 return_score = true 时有意义）
+  float score = 2;
+}
+
+message QuerySpeakerResponse {
+  // 匹配到的实体列表
+  repeated MatchEntity matches = 1;
+}
+
+////////////////////////////////////////////////////////////
+// 对外服务：只有“查”这一件事
+////////////////////////////////////////////////////////////
+

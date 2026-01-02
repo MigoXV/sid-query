@@ -1,0 +1,32 @@
+[project]
+name = "sid-query"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "migo",email = "1695587905@qq.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy (<2.3)",
+    "librosa (>=0.11.0,<0.12.0)",
+    "scipy (<1.16)",
+    "faiss-cpu (>=1.13.2,<2.0.0)",
+    "grpcio (>=1.76.0,<2.0.0)",
+    "protobuf (>=6.33.2,<7.0.0)",
+    "sqlalchemy (>=2.0.45,<3.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "typer (>=0.21.0,<0.22.0)"
+]
+
+[tool.poetry]
+packages = [{include = "sid_query", from = "src"}]
+
+[[tool.poetry.source]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

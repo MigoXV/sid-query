@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package pb;
+option go_package = "./;pb";
+
+service Engine {
+  rpc EngineInfo(google.protobuf.Empty) returns (EngineInfoReply) {}
+
+  rpc Vad(VadRequest) returns (VadReply) {}
+
+  rpc VadWav(VadWavRequest) returns (VadReply) {}
+
+  rpc Feature(FeatRequest) returns  (FeatReply) {}
+
+  rpc FeatureWav(FeatWavRequest) returns (FeatReply) {}
+
+  rpc Train(TrainRequest) returns (TrainReply) {}
+
+  rpc TrainWav(TrainWavRequest) returns (TrainReply) {}
+
+  rpc Compare(CompareRequest) returns (CompareReply) {}
+
+  rpc CompareWav(CompareWavRequest) returns (CompareReply) {}
+
+  rpc Cluster(ClusterRequest) returns(ClusterReply) {}
+
+  rpc Extended(ExtendedRequest) returns(ExtendedReply) {}
+}
+
+message EngineInfoReply {
+  repeated string engineList = 1;
+  repeated string vadList    = 2;
+  repeated string lidList    = 3;
+  repeated string gidList    = 4;
+}
+
+message VadRequest {
+  string vadAlg = 1;
+  bytes  pcm    = 2;
+}
+
+message VadWavRequest {
+  string vadAlg   = 1;
+  string filePath = 2;
+}
+
+message VadReply {
+  repeated TimeSeg timeSegList = 1;
+}
+
+message TimeSeg {
+  int64 start = 1;
+  int64 end   = 2;
+}
+
+
+message FeatRequest {
+  string vadAlg = 1;
+  string sidAlg = 2;
+  bytes  pcm    = 3;
+}
+
+
+message FeatWavRequest {
+  string          vadAlg    = 1;
+  string          sidAlg    = 2;
+  repeated string filePaths = 3;
+}
+
+
+message FeatReply {
+  bytes feat = 1;
+}
+
+message TrainWavRequest {
+  string          vadAlg    = 1;
+  string          sidAlg    = 2;
+  repeated string filePaths = 3;
+}
+
+message TrainRequest {
+  string         vadAlg = 1;
+  string         sidAlg = 2;
+  repeated bytes pcm    = 3;
+}
+
+message TrainReply {
+  bytes model = 1;
+}
+
+message CompareRequest {
+  string         sidAlg = 1;
+  bytes          feat   = 2;
+  repeated bytes models = 3;
+}
+
+message CompareWavRequest {
+  string          vadAlg       = 1;
+  string          sidAlg       = 2;
+  repeated string featWavList  = 3;
+  repeated string modelWavList = 4;
+}
+
+
+message CompareReply {
+  repeated ScoreInfo ScoreList = 1;
+}
+
+message ScoreInfo {
+  float  score = 1;
+  string err   = 2;
+}
+
+
+
+message ClusterRequest {
+  string         vadAlg     = 1;
+  string         sidAlg     = 2;
+  repeated bytes pcm        = 3;
+  ClusterModel   model      = 4;
+  int32          numCluster = 5;
+  float          threshold  = 6;
+}
+
+enum ClusterModel {
+  ClusterByNum       = 0;
+  ClusterByThreshold = 1;
+}
+
+message ClusterReply {
+  repeated int32 result = 1;
+}
+
+message ExtendedRequest {
+  string         vadAlg     = 1;
+  string         lidAlg     = 2;
+  string         gidAlg     = 3;
+  bytes pcm        = 4;
+}
+
+message ExtendedReply{
+  repeated ExtendedInfo list = 1;
+}
+
+message ExtendedInfo{
+  float  score = 1;
+  string value = 2;
+  string alg = 3;
+}
