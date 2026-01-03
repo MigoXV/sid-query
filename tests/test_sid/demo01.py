@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import time
 from pathlib import Path
 
 import grpc
@@ -56,9 +57,17 @@ def main() -> int:
     infer = Inferencer(target=args.target, vad_alg=args.vad_alg, sid_alg=args.sid_alg)
 
     try:
+        start_time = time.time()
         feat1 = infer.feature(audio1)
+        elapsed1 = time.time() - start_time
+        
+        start_time = time.time()
         feat2 = infer.feature(audio2)
+        elapsed2 = time.time() - start_time
+        
+        start_time = time.time()
         feat1_noisy = infer.feature(audio1_noisy)
+        elapsed3 = time.time() - start_time
     except grpc.RpcError as e:
         print(f"gRPC call failed: code={e.code()} details={e.details()}")
         return 2
@@ -67,8 +76,9 @@ def main() -> int:
     sim_1_1n = cosine_similarity(feat1, feat1_noisy)
 
     print(f"target: {args.target}")
-    print(f"wav1: {wav1.name} feat_dim={feat1.shape[0]}")
-    print(f"wav2: {wav2.name} feat_dim={feat2.shape[0]}")
+    print(f"wav1: {wav1.name} feat_dim={feat1.shape[0]} time={elapsed1:.3f}s")
+    print(f"wav2: {wav2.name} feat_dim={feat2.shape[0]} time={elapsed2:.3f}s")
+    print(f"wav1_noisy: time={elapsed3:.3f}s")
     print(f"cosine(wav1, wav2) = {sim_1_2:.6f}")
     print(f"cosine(wav1, wav1+noise@{args.snr_db}dB) = {sim_1_1n:.6f}")
     return 0
